@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<title>Text Simplifier</title>
+<link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css" />
+</head>
+<body >
+<div id="default">
+  <header id="head_div">
+    <img class="float_left" alt="Simplifier" src="{% static 'images/simplifier.jpg' %}" height="201px">
+    <h1 id="project_title"  class="float_left" > Simplifier </h1>
+    </header>
+  <nav id="nav_div">
+    <ul id="nav_list">
+      <li><a href="{% url 'index' %}" colour="white">Simplify </a></li>
+      <li><a href="{% url 'contribute' %}">Contribute </a></li>
+      </ul>
+    </nav>
+  <div id="main_container">
+    
+     
+     {% block content %}
+     {% endblock %}
+	<footer id="footer_div"> T Wang Team @ CS682-3, UMB | &copy;  Copyright 2016 | All rights Reserved
+	  <br>Team members: T Wang, N Lu, YH Luo, C Fakhry, X Ding
+	  </footer>
+  </div>
+</div>
+</body>
+</html>

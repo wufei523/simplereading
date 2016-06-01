@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 id="h1_title">Intend for people to write/understand texts in a simple way </h1><br/>
+<table  >
+<form class="search-form" method="GET" name="input text you want to simplify">{% csrf_token %}
+    
+    <tr>
+        <td><label for="id_original_text"><p>Please inpute original text here:<input type="submit" value="Simplify" style="float: right" ></p></label></td>
+        
+        <td><label for="simplified_text"><p>Simplified:</p></label>
+        </td>
+    </tr>
+    <tr>
+        <td>{{ form.as_p }}</td>
+        <td><textarea rows="5" cols="60" wrap="hard" readonly="yes" name="text after simplified" id="simplified_text">{{ simple }}
+        </textarea></td>
+    </tr>
+</form>
+</table>
+</br>
+<h2>Process:</h2>
+<p style="border-style:dashed">{{ process }}</p><br/><br/>
+<form method="POST" >{% csrf_token %}
+    <label for="id_comment"><p>    Leave a comment:</p></label>{{ formc.as_p }}<br />
+       <input type="submit" value="submit"  />
+</form><br/><br/>
+{% if com %}
+<h2>Comments:</h2><br/>
+{% for comment in com %}<hr/>
+<p>{{ comment.comment }}</p><br/>
+{% endfor %}
+{% endif %}
+</br>
+{% endblock content %}
