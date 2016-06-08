@@ -7,6 +7,8 @@ import os
 from os.path import join
 import numpy as np
 import gensim, logging
+from nltk.wsd import lesk
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 def checkPos(word):
@@ -66,5 +68,62 @@ def getSynonmys(word):
 			res.append(l.name)
 	return list(set(res))
 
+
+def get_Candidate_Frequency_from_wordnet(word, tag, context):
+    wordnet_tag = get_wordnet_pos(tag)
+    sent = list(context)
+    #print("context is")
+    #print(sent)
+	#syns = lesk(sent, word, wordnet_tag)
+    syns = lesk(sent, word)
+
+    res = []
+    if syns:
+        for l in syns.lemmas():
+            if l:
+                lemma_name = str(l.name())
+                st = LancasterStemmer()
+                if ((st.stem(word) != st.stem(lemma_name))):
+                    res.append(lemma_name)
+
+
+    candidate_list = list(set(res))
+    #print("for word: " + word)
+    #print(candidate_list)
+
+    '''
+    if candidate_list:
+        for c in candidate_list:
+            allsyns1 = set(ss for ss in wordnet.synsets(c))
+            print(allsyns1)
+            allsyns2 = set(ss for ss in wordnet.synsets(word))
+            print(allsyns2)
+            best = max((wordnet.wup_similarity(s1, s2) or 0, s1, s2) for s1, s2 in product(allsyns1, allsyns2))
+            print(best)
+        '''
+
+
+    '''
+    for c in candidate_list:
+        wordsFromList1 = wordnet.synsets(word)
+        wordsFromList2 = wordnet.synsets(c)
+        if wordsFromList1 and wordsFromList2:  # Thanks to @alexis' note
+            s = wordsFromList1[0].wup_similarity(wordsFromList2[0])
+            similarity_list.append(s)
+    '''
+    return candidate_list
+
+
+def get_wordnet_pos(treebank_tag):
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return ''
 
 

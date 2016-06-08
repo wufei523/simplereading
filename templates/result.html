@@ -18,8 +18,23 @@
 </form>
 </table>
 </br>
+
 <h2>Process:</h2>
-<p style="border-style:dashed">{{ process }}</p><br/><br/>
+<p style="border-style:dotted">
+    {{ process }}
+</p>
+
+<h2>Wordnet Process:</h2>
+<p style="border-style:dotted">
+    {{ wordnet_result }}
+</p>
+
+<h2>Bluemix Concept Tagging:</h2>
+<p style="border-style:dotted">
+    {{ bluemix_concept }}
+</p>
+
+
 <form method="POST" >{% csrf_token %}
     <label for="id_comment"><p>    Leave a comment:</p></label>{{ formc.as_p }}<br />
        <input type="submit" value="submit"  />
