@@ -19,20 +19,40 @@
 </table>
 </br>
 
-<h2>Process:</h2>
-<p style="border-style:dotted">
-    {{ process }}
-</p>
+
+<h2>Bluemix Concept and Keyword:</h2>
+
+<table id='id_result_table'>
+<tr><th>#</th><th>concept/keyword</th><th>relevance</th>
+{% for p in bluemix_concept %}
+    <tr><td>{{ forloop.counter }}</td><td>{{ p.name }}</td><td>{{ p.relevance }}</td></tr>
+{% endfor %}
+</table>
+
+
+<h2>W2V process:</h2>
+
+<table summary="W2V Process" id="id_result_table" cellspacing="0">
+<tr><th>#</th><th>original</th><th>freq</th><th>new</th><th>candidates list</th>
+{% for p in w2v_result_list %}
+    <tr><td>{{ forloop.counter }}</td><td>{{ p.original_word }}</td><td>{{ p.frequency }}</td><td>{{ p.replace_with }}</td><td>
+                                                                                                                        <table summary="candidate" id = 'id_candidate_table'>
+                                                                                                                        <tr><th>candidate</th><th>freq</th><th>syllables</th><th>semantic similarity</th><th>context similarity</th><th>information content diff</th><th>fits into sequence</th>
+                                                                                                                        {% for p in p.candidate_list %}
+                                                                                                                            <tr><td>{{ p.name }}</td><td>{{ p.frequency }}</td><td>{{ p.syllables }}</td><td>{{ p.similarity }}</td><td></td><td></td><td></td></tr>
+                                                                                                                        {% endfor %}
+                                                                                                                        </table></td></tr>
+{% endfor %}
+</table>
 
 <h2>Wordnet Process:</h2>
-<p style="border-style:dotted">
-    {{ wordnet_result }}
+<p>
+    {% for p in wordnet_result %}
+    <textarea readonly id="id_process_box">{{ p }}</textarea>
+    {% endfor %}
 </p>
 
-<h2>Bluemix Concept Tagging:</h2>
-<p style="border-style:dotted">
-    {{ bluemix_concept }}
-</p>
+
 
 
 <form method="POST" >{% csrf_token %}

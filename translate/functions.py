@@ -127,3 +127,15 @@ def get_wordnet_pos(treebank_tag):
         return ''
 
 
+
+from nltk.corpus import cmudict
+d = cmudict.dict()
+
+def countSyllables(word):
+
+    try:
+        num_of_syllables = [len(list(y for y in x if y[-1].isdigit())) for x in d[word.lower()]]
+        return  min(num_of_syllables)
+    except:
+        # print(word + " not found in cmudict, so num_of_syllables=0")
+        return -1

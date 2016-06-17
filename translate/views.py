@@ -26,7 +26,9 @@ def result(request, hard_text):
 
     #simple is simplified sentence
     #process is: original word : top 20 words(not handled, directly from model.most_similar())
-    simple, process, wordnet_result, bluemix_concept = utils.simplify(hard_text)
+    simple, process, wordnet_result, bluemix_concept, w2v_result_list= utils.simplify(hard_text)
+
+
     if 'original_text' in request.GET and request.GET["original_text"]:
         hard_text = request.GET.get("original_text")
         return redirect('result', hard_text)
@@ -49,21 +51,21 @@ def result(request, hard_text):
                     com.comment = comment
                     com.save()
                     comments = Comment.objects.filter(history=history.id)
-                    return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc, 'com':comments,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept})
+                    return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc, 'com':comments,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept, 'w2v_result_list': w2v_result_list})
             else:
                 try:
                     history = Simplify.objects.get(input=hard_text, output=simple)
                 except Simplify.DoesNotExist:
-                    return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept})
+                    return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept, 'w2v_result_list': w2v_result_list})
                 comments = Comment.objects.filter(history=history.id)
-                return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc, 'com':comments,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept})
+                return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc, 'com':comments,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept, 'w2v_result_list': w2v_result_list})
     else:
         try:
             history = Simplify.objects.get(input=hard_text, output=simple)
         except Simplify.DoesNotExist:
-            return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept})
+            return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept, 'w2v_result_list': w2v_result_list})
         comments = Comment.objects.filter(history=history.id)
-        return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc, 'com':comments,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept})
+        return render(request, 'result.html', {'simple': simple, 'form' : form, 'formc':formc, 'com':comments,'process':process, 'wordnet_result':wordnet_result, 'bluemix_concept':bluemix_concept, 'w2v_result_list': w2v_result_list})
 
 
 def contribute(request):

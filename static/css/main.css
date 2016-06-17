@@ -41,7 +41,6 @@ h3 {
     padding-top: 20px;
     margin: 10px;
     font-size: 150%;
-
 }
 
 h1{
@@ -50,13 +49,11 @@ h1{
     margin-bottom: 0px;
     letter-spacing: 1px;
     position: relative;
-
     }
 h2{
     padding-top: 20px;
     letter-spacing: 1px;
-    margin: 10px;
-
+    margin: 5px;
 }
 
 a{
@@ -305,4 +302,31 @@ iframe {
     letter-spacing: 1px;
     color: #8B4513;
     position: absolute;
+}
+
+#id_process_box{
+    margin-bottom: 10px;
+    display: block;
+    width: 98%;
+    height: auto;
+}
+
+#id_result_table{
+    border: 1px solid black;
+}
+#id_result_table tr td {
+    border:0.5px solid;
+}
+#id_result_table tr th {
+    border:0.5px solid;
+}
+
+#id_candidate_table{
+    border: none;
+}
+#id_candidate_table tr td{
+    border_bottom: 0.5px solid #CCC;
+}
+#id_candidate_table tr th{
+    border_bottom: 0.5px solid #CCC;
 }
