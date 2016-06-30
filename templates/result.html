@@ -36,12 +36,15 @@
 <tr><th>#</th><th>original</th><th>freq</th><th>new</th><th>candidates list</th>
 {% for p in w2v_result_list %}
     <tr><td>{{ forloop.counter }}</td><td>{{ p.original_word }}</td><td>{{ p.frequency }}</td><td>{{ p.replace_with }}</td><td>
-                                                                                                                        <table summary="candidate" id = 'id_candidate_table'>
-                                                                                                                        <tr><th>candidate</th><th>freq</th><th>syllables</th><th>semantic similarity</th><th>context similarity</th><th>information content diff</th><th>fits into sequence</th>
-                                                                                                                        {% for p in p.candidate_list %}
-                                                                                                                            <tr><td>{{ p.name }}</td><td>{{ p.frequency }}</td><td>{{ p.syllables }}</td><td>{{ p.similarity }}</td><td></td><td></td><td></td></tr>
-                                                                                                                        {% endfor %}
-                                                                                                                        </table></td></tr>
+
+    <table summary="candidate" id = 'id_candidate_table'>
+    <tr><th>candidate</th><th>frequency</th><th bgcolor="#EC7063">Complexity</th><th bgcolor="#EC7063">rank</th><th bgcolor="#BB8FCE"># of syllables</th><th bgcolor="#BB8FCE">rank</th><th bgcolor="#85C1E9">semantic similarity</th><th bgcolor="#85C1E9">rank</th><th bgcolor="#48C9B0">context similarity</th><th bgcolor="#48C9B0">rank</th><th bgcolor="#F8C471">ngram probability</th><th bgcolor="#F8C471">rank</th><th>AVG_RANK</th>
+    {% for p in p.candidate_list %}
+    <tr><td>{{ p.name }}</td><td>{{ p.frequency }}</td><td>{{ p.complexity }}</td><td>{{ p.c_rank }}</td><td>{{ p.syllables }}</td><td>{{ p.slb_rank }}</td><td>{{ p.similarity }}</td><td>{{ p.s_rank }}</td><td>{{ p.context_similarity }}</td><td>{{ p.cs_rank }}</td><td>{{ p.ngram_p }}</td><td>{{ p.ngram_rank }}</td><td>{{ p.avg_rank }}</td></tr>
+    {% endfor %}
+    </table></td></tr>
+
+
 {% endfor %}
 </table>
 

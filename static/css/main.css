@@ -312,6 +312,7 @@ iframe {
 }
 
 #id_result_table{
+    width: 98%;
     border: 1px solid black;
 }
 #id_result_table tr td {
@@ -322,6 +323,7 @@ iframe {
 }
 
 #id_candidate_table{
+    width: 98%;
     border: none;
 }
 #id_candidate_table tr td{

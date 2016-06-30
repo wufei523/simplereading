@@ -8,6 +8,7 @@ from os.path import join
 import numpy as np
 import gensim, logging
 from nltk.wsd import lesk
+import scipy.stats as ss
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -138,4 +139,54 @@ def countSyllables(word):
         return  min(num_of_syllables)
     except:
         # print(word + " not found in cmudict, so num_of_syllables=0")
-        return -1
+        return 999
+
+
+from translate.alchemyapi import AlchemyAPI
+alchemyapi = AlchemyAPI()
+from translate import constructs
+
+def getBluemixConcept(s):
+
+	alchemyapi_concept_response = alchemyapi.concepts('text', s)
+	bluemix_concept_str_list = []
+	bluemix_concept_obj_list = []
+	# print("BLUE MIX Concept")
+	if alchemyapi_concept_response['status'] == 'OK':
+		for concept in alchemyapi_concept_response['concepts']:
+			bluemix_concept_str_list.append(str(concept['text']))
+			bluemix_concept_obj_list.append(constructs.BluemixConceptKeywordObject(str(concept['text']), str(concept['relevance'])))
+		#print("Bluemix Concept: " + str(bluemix_concept_str_list))
+
+	else:
+		print('Error in concept tagging call: ', alchemyapi_concept_response['statusInfo'])
+
+	return bluemix_concept_str_list, bluemix_concept_obj_list
+
+
+
+def getBluemixKeyword(s):
+
+	alchemyapi_keyword_response = alchemyapi.keywords('text', s, {'sentiment': 1})
+	bluemix_keyword_str_list = []
+	bluemix_keyword_obj_list = []
+	# print("BLUE MIX keyword")
+	if alchemyapi_keyword_response['status'] == 'OK':
+		for keyword in alchemyapi_keyword_response['keywords']:
+			bluemix_keyword_str_list.append(str(keyword['text']))
+			bluemix_keyword_obj_list.append(
+				constructs.BluemixConceptKeywordObject(str(keyword['text']), str(keyword['relevance'])))
+			#print("Bluemix keyword: " + str(bluemix_keyword_str_list))
+	else:
+		print('Error in keyword extaction call: ', alchemyapi_keyword_response['statusInfo'])
+
+
+	return bluemix_keyword_str_list, bluemix_keyword_obj_list
+
+
+def rankList(list):
+
+	return ss.rankdata(list)
+
+def rankListReverse(list):
+	return (len(list) - ss.rankdata(list) + 1)
