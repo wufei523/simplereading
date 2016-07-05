@@ -20,7 +20,21 @@
 </br>
 
 
-<h2>Bluemix Concept and Keyword:</h2>
+
+
+<h2>Potential Complex Words:</h2>
+
+<table id='id_result_table'>
+<tr><th>#</th><th>word</th><th>frequency</th><th># of syllables</th><th>length >= 11</th>
+{% for p in complex_word_list %}
+    <tr><td>{{ forloop.counter }}</td><td>{{ p.name }}</td><td>{{ p.freq }}</td><td>{{ p.numOfSyllables }}</td><td>{{ p.length }}</td></tr>
+{% endfor %}
+</table>
+
+
+
+
+<h2>Watson Concept and Keyword:</h2>
 
 <table id='id_result_table'>
 <tr><th>#</th><th>concept/keyword</th><th>relevance</th>
@@ -28,6 +42,7 @@
     <tr><td>{{ forloop.counter }}</td><td>{{ p.name }}</td><td>{{ p.relevance }}</td></tr>
 {% endfor %}
 </table>
+
 
 
 <h2>W2V process:</h2>

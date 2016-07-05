@@ -58,6 +58,8 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
     bluemix_result_passage = []
     wordnet_result_passage = []
 
+    complex_word_object_list = []
+
 
 
     # process each sentence in passage
@@ -105,11 +107,19 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
         for tag in tags:
 
             word_processing = tag[0]
+            word_processing = word_processing.lower()
             word_processing_pos = tag[1]
             word_processing_frequency = fdist[word_processing]
             word_processing_stem = stemmer.stem(word_processing)
             replace = False
             top_words = []
+
+
+
+            #check complex word
+            if isComplexWord(word_processing) is not None:
+                complex_word = isComplexWord(word_processing)
+                complex_word_object_list.append(complex_word)
 
 
             if needToProcess(word_processing, word_processing_pos, bluemix_concept_keyword_str_list, min_frequent):
@@ -289,7 +299,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
         bluemix_result_passage += bluemix_concept_keyword_obj_list
         wordnet_result_passage += wordnet_result_words
 
-    return simplified_passage, wordnet_result_passage, bluemix_result_passage, w2v_result_passage
+    return simplified_passage, wordnet_result_passage, bluemix_result_passage, w2v_result_passage, complex_word_object_list
 
 
 
@@ -400,3 +410,38 @@ def getNgramProbability(bi_grams, tri_grams, t, candidate):
     #print("Ngram prob: " + str(avg_ngram_prob))
 
     return avg_bi_gram_prob, avg_tri_gram_prob, avg_ngram_prob
+
+
+
+
+def isComplexWord(word, min_freq=50):
+
+    if word not in string.punctuation:
+
+        word = word.lower()
+        freq = fdist[str(word)]
+        NumOfSyllables = function.countSyllables(word)
+        length = len(word)
+
+        condition1 =  freq < min_freq
+        condition2 = NumOfSyllables >= 3
+        condition3 = length >= 11
+
+        #testing conditions
+        condition4 = freq<min_freq*2 and freq>=min_freq and NumOfSyllables >= 4
+        condition5 = freq<min_freq and NumOfSyllables >=3
+        condition6 = freq<20
+
+        complex_word = constructs.ComplexWord(word, freq, NumOfSyllables, length)
+
+
+        if condition4 or condition5 or condition3 or condition6:
+            return complex_word
+        else:
+            return None
+    else:
+        return None
+
+
+
+

@@ -42,3 +42,13 @@ class BluemixConceptKeywordObject:
     def __init__(self, n, r):
         self.name = n
         self.relevance = r
+
+
+
+class ComplexWord:
+
+    def __init__(self, word, freq, numOfSyllables, length):
+        self.name = word
+        self.freq = freq
+        self.numOfSyllables = numOfSyllables
+        self.length = length
