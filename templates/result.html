@@ -33,18 +33,6 @@
 
 
 
-
-<h2>Watson Concept and Keyword:</h2>
-
-<table id='id_result_table'>
-<tr><th>#</th><th>concept/keyword</th><th>relevance</th>
-{% for p in bluemix_concept %}
-    <tr><td>{{ forloop.counter }}</td><td>{{ p.name }}</td><td>{{ p.relevance }}</td></tr>
-{% endfor %}
-</table>
-
-
-
 <h2>W2V process:</h2>
 
 <table summary="W2V Process" id="id_result_table" cellspacing="0">
@@ -62,6 +50,21 @@
 
 {% endfor %}
 </table>
+
+
+
+
+
+<h2>Watson Concept and Keyword:</h2>
+
+<table id='id_result_table'>
+<tr><th>#</th><th>concept/keyword</th><th>relevance</th>
+{% for p in bluemix_concept %}
+    <tr><td>{{ forloop.counter }}</td><td>{{ p.name }}</td><td>{{ p.relevance }}</td></tr>
+{% endfor %}
+</table>
+
+
 
 <h2>Wordnet Process:</h2>
 <p>

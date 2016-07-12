@@ -65,6 +65,8 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
     # process each sentence in passage
     for s in sentences_tokenized_list:
 
+        sentence_index = sentences_tokenized_list.index(s)
+
         print("")
         print("THIS sentence: " + str(s))
 
@@ -105,34 +107,37 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
         #go through each tag/go through token
         # tag[0] is word, tag[1] is tag
         for tag in tags:
+            word_index = tags.index(tag)
 
-            word_processing = tag[0]
-            word_processing = word_processing.lower()
+            word_processing_original = tag[0]
+            word_processing_lower = word_processing_original.lower()
             word_processing_pos = tag[1]
-            word_processing_frequency = fdist[word_processing]
-            word_processing_stem = stemmer.stem(word_processing)
+            word_processing_frequency = fdist[word_processing_lower]
+            word_processing_stem = stemmer.stem(word_processing_lower)
             replace = False
             top_words = []
 
 
 
-            #check complex word
-            if isComplexWord(word_processing) is not None:
-                complex_word = isComplexWord(word_processing)
+            #addition function: find complex word
+            complex_word_flag = False
+            if isComplexWord(word_processing_lower) is not None:
+                complex_word = isComplexWord(word_processing_lower)
                 complex_word_object_list.append(complex_word)
+                complex_word_flag = True
 
 
-            if needToProcess(word_processing, word_processing_pos, bluemix_concept_keyword_str_list, min_frequent):
+            if needToProcess(word_processing_lower, word_processing_pos, bluemix_concept_keyword_str_list, min_frequent) and complex_word_flag:
 
                 # find syn using w2v model
                 # print("NOW PROCESSING THIS WORD")
                 # print(word_processing)
 
-                top_words = w2v_model.most_similar(positive=[word_processing], topn=top_n_elements)
+                top_words = w2v_model.most_similar(positive=[word_processing_lower], topn=top_n_elements)
                 # top 20 similar words and their frequency
                 candidate_list_w2v = [w[0] for w in top_words]
                 freq_list_w2v = [(fdist[w]) for w in candidate_list_w2v]
-                similarity_list_w2v = [w2v_model.similarity(word_processing, w) for w in candidate_list_w2v]
+                similarity_list_w2v = [w2v_model.similarity(word_processing_lower, w) for w in candidate_list_w2v]
                 syllables_list_w2v = [function.countSyllables(w) for w in candidate_list_w2v]
 
                 c_f_list_w2v = zip(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v)
@@ -149,7 +154,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 s_list = []
                 slb_list = []
                 try:
-                    candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v = zip(*((candidate, freq, similarity, slb) for candidate, freq, similarity, slb in c_f_list_w2v if similarity > min_similarity and freq > word_processing_frequency and function.samePos(word_processing,candidate)))
+                    candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v = zip(*((candidate, freq, similarity, slb) for candidate, freq, similarity, slb in c_f_list_w2v if similarity > min_similarity and freq > word_processing_frequency and function.samePos(word_processing_lower,candidate)))
                 except:
                     pass
 
@@ -182,7 +187,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 ngram_prob_list_w2v = []
                 for w in candidate_list_w2v:
                     # print("NOW DOING THIS CANDIDATE: " + str(w))
-                    bigram_prob, tri_grams_prob, ngram_prob = getNgramProbability(bi_grams, tri_grams, word_processing, w)
+                    bigram_prob, tri_grams_prob, ngram_prob = getNgramProbability(bi_grams, tri_grams, word_processing_lower, w)
                     bigram_prob_list_w2v.append(bigram_prob)
                     trigram_prob_list_w2v.append(tri_grams_prob)
                     ngram_prob_list_w2v.append(ngram_prob)
@@ -210,11 +215,11 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 # print(a, b, c)
 
                 # find syn using wordnet
-                candidate_list_wordnet = function.get_Candidate_Frequency_from_wordnet(word_processing, tag[1], tokenized_sentence)
+                candidate_list_wordnet = function.get_Candidate_Frequency_from_wordnet(word_processing_lower, tag[1], tokenized_sentence)
                 similarity_list_wordnet = []
                 for w in candidate_list_wordnet:
                     try:
-                        similarity_list_wordnet.append(w2v_model.similarity(word_processing, w))
+                        similarity_list_wordnet.append(w2v_model.similarity(word_processing_lower, w))
                     except:
                         similarity_list_wordnet.append(0)
                 freq_list_wordnet = [fdist[w] for w in candidate_list_wordnet]
@@ -251,7 +256,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 # ordered_list_wordnet = [w for w in ordered_list_wordnet]
 
                 '''ATTENTION HERE'''
-                wordnet_result_words.append("Original_Word: " + tag[0] + "(" + str(fdist[word_processing]) + "), Candidates = " + str(ordered_list_wordnet))
+                wordnet_result_words.append("Original_Word: " + tag[0] + "(" + str(fdist[word_processing_lower]) + "), Candidates = " + str(ordered_list_wordnet))
 
                 # synonmys = f.getSynonmys(word_processing)  ## get synonmys from wordnet
                 # print synonmys
@@ -259,7 +264,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
 
                 ordered_list_same_POS = [w for w in ordered_list if (stemmer.stem(w[0]) != word_processing_stem)]
                 if (len(ordered_list_same_POS) > 0):
-                    word_processing = ordered_list_same_POS[0][0]
+                    word_processing_lower = ordered_list_same_POS[0][0]
                     replace = True
 
                 # for each candidate word_processing
@@ -283,21 +288,31 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
 
 
 
-
+            # for each word
             # update result
-            if word_processing not in string.punctuation:
-                simplified_sentence = simplified_sentence + ' ' + word_processing
+            new_word = word_processing_lower
+            if (new_word not in string.punctuation):
+                if word_processing_original[0].isupper():
+                    new_word = new_word.capitalize()
+                elif word_processing_original.isupper():
+                    new_word = new_word.upper()
+
+
+            if (new_word not in string.punctuation) and ("'" not in new_word) and (sentence_index != 0 or word_index != 0):
+                simplified_sentence = simplified_sentence + ' ' + new_word
             else:
-                simplified_sentence = simplified_sentence + word_processing
+                simplified_sentence = simplified_sentence + new_word
 
             if replace is True:
                 #process.append("Original_Word: " + tag[0] + "(" + str(word_processing_frequency) + "), Replaced with: " + word_processing + ", Candidates = " + str(ordered_list_same_POS))
-                w2v_result_list.append(constructs.ResultObject(tag[0], word_processing_frequency, word_processing, candidate_object_list))
+                w2v_result_list.append(constructs.ResultObject(tag[0], word_processing_frequency, new_word, candidate_object_list))
 
         simplified_passage += simplified_sentence
         w2v_result_passage += w2v_result_list
         bluemix_result_passage += bluemix_concept_keyword_obj_list
         wordnet_result_passage += wordnet_result_words
+
+    simplified_passage = function.sentenceCapitalizer(simplified_passage)
 
     return simplified_passage, wordnet_result_passage, bluemix_result_passage, w2v_result_passage, complex_word_object_list
 
@@ -318,6 +333,8 @@ def needToProcess(word, pos, bluemix_list, min_freq):
     condition3 = str(word) in w2v_model
     # low frequency
     condition4 = fdist[str(word)] < min_freq
+    # not 've
+    condition5 = "'" not in word
 
     if debugging:
         print(" ")
@@ -327,7 +344,7 @@ def needToProcess(word, pos, bluemix_list, min_freq):
         print("in w2v?     "+str(condition3))
         print("hard word?  "+str(condition4))
 
-    if condition1 and condition2 and condition3 and condition4:
+    if condition1 and condition2 and condition3 and condition4 and condition5:
         return True
     else:
         return False
@@ -432,10 +449,12 @@ def isComplexWord(word, min_freq=50):
         condition5 = freq<min_freq and NumOfSyllables >=3
         condition6 = freq<20
 
+        condition7 = "'" not in word
+
         complex_word = constructs.ComplexWord(word, freq, NumOfSyllables, length)
 
 
-        if condition4 or condition5 or condition3 or condition6:
+        if (condition4 or condition5 or condition3 or condition6) and condition7:
             return complex_word
         else:
             return None

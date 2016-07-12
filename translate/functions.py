@@ -190,3 +190,10 @@ def rankList(list):
 
 def rankListReverse(list):
 	return (len(list) - ss.rankdata(list) + 1)
+
+
+def sentenceCapitalizer (string1: str):
+    sentences = string1.split(". ")
+    sentences2 = [sentence[0].capitalize() + sentence[1:] for sentence in sentences]
+    string2 = '. '.join(sentences2)
+    return string2
