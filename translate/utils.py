@@ -53,7 +53,7 @@ stop_words = set(stopwords.words('english'))
 
 
 
-def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity = 0.5, top_n_elements=20):
+def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity = 0.7, top_n_elements=20):
 
 
     sentences_tokenized_list = sent_tokenize(passage)
@@ -131,7 +131,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 complex_word_flag = True
 
 
-            if needToProcess(word_processing_lower, word_processing_pos, bluemix_concept_keyword_str_list, min_frequent) and complex_word_flag:
+            if needToProcess(word_processing_lower, word_processing_pos, bluemix_concept_keyword_str_list, min_frequent, complex_word_flag):
 
                 # find syn using w2v model
                 # print("NOW PROCESSING THIS WORD")
@@ -144,6 +144,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 similarity_list_w2v = [w2v_model.similarity(word_processing_lower, w) for w in candidate_list_w2v]
                 syllables_list_w2v = [function.countSyllables(w) for w in candidate_list_w2v]
 
+                '''
                 print("BEFORE candidate list is: ")
                 print(candidate_list_w2v)
                 print(freq_list_w2v)
@@ -154,6 +155,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 print(len(freq_list_w2v))
                 print(len(similarity_list_w2v))
                 print(len(syllables_list_w2v))
+                '''
 
                 #c_f_list_w2v = zip(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v)
                 #c_f_list_w2v = filterCandidateList(c_f_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb)
@@ -340,7 +342,7 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
 
 
 
-def needToProcess(word, pos, bluemix_list, min_freq):
+def needToProcess(word, pos, bluemix_list, min_freq, complex_word_flag):
 
     debugging = False
     word = word.lower()
@@ -352,12 +354,19 @@ def needToProcess(word, pos, bluemix_list, min_freq):
     condition2 = str(word) not in bluemix_list
     # in w2v model
     condition3 = str(word) in w2v_model
-    # low frequency
-    condition4 = fdist[str(word)] < min_freq
-    # not 've
+    # hard word
+    # condition4 = fdist[str(word)] < min_freq
+    condition4 = complex_word_flag
+
+    # not 've and -
     condition5 = "'" not in word
     # not in stopwords
     condition6 = str(word) not in stop_words
+
+    condition7 = "-" not in word
+
+    condition8 = word.isalpha()
+
 
     if debugging:
         print(" ")
@@ -365,9 +374,11 @@ def needToProcess(word, pos, bluemix_list, min_freq):
         print("Pos?        "+str(condition1))
         print("in Bluemix? "+str(condition2))
         print("in w2v?     "+str(condition3))
-        print("hard word?  "+str(condition4))
+        print("low freq?  "+str(condition4))
+        print("no ' ?  " + str(condition5))
+        print("no - ?  " + str(condition7))
 
-    if condition1 and condition2 and condition3 and condition4 and condition5 and condition6:
+    if condition1 and condition3 and condition4 and condition6 and condition8:
         return True
     else:
         return False
@@ -478,7 +489,13 @@ def isComplexWord(word, min_freq=50):
 
         condition8 = str(word) not in stop_words
 
-        if (condition4 or condition5 or condition3 or condition6) and condition7 and condition8:
+        condition9 = "'" not in word
+
+        condition10 = "-" not in word
+
+        condition11 = word.isalpha()
+
+        if (condition4 or condition5 or condition3 or condition6) and condition7 and condition8 and condition9 and condition10 and condition11:
             return complex_word
         else:
             return None
@@ -489,6 +506,8 @@ def isComplexWord(word, min_freq=50):
 
 
 def filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb):
+
+    freq_diff = 1.2
 
     debugging = False
     if debugging:
@@ -513,7 +532,7 @@ def filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, 
         slb = syllables_list_w2v[x]
 
         #keep candidate if meets all conditions
-        condition1 = f > word_processing_frequency
+        condition1 = f > word_processing_frequency*freq_diff and f > 25
         condition2 = s > min_similarity
         condition3 = slb <= word_processing_slb
         condition4 = function.samePos(word_processing_lower,c)
