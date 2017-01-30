@@ -53,7 +53,7 @@ stop_words = set(stopwords.words('english'))
 
 
 
-def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity = 0.7, top_n_elements=20):
+def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity = 0.5, top_n_elements=20):
 
 
     sentences_tokenized_list = sent_tokenize(passage)
@@ -159,7 +159,10 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
 
                 #c_f_list_w2v = zip(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v)
                 #c_f_list_w2v = filterCandidateList(c_f_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb)
-                candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v = filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb)
+
+                # compute context similarity
+                context_similarity_list_w2v = [getContextSimilarity(w, tokenized_sentence) for w in candidate_list_w2v]
+                candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v, context_similarity_list_w2v = filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v, context_similarity_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb)
 
                 print("AFTER candidate list is: ")
                 print(candidate_list_w2v)
@@ -220,8 +223,13 @@ def simplify(passage, min_frequent=100, min_frequent_diff = 1.2, min_similarity 
                 trigram_prob_rank_w2v = function.rankListReverse(trigram_prob_list_w2v)
                 ngram_prob_rank_w2v = function.rankListReverse(ngram_prob_list_w2v)
 
+                complexity_rank_w2v_devided_by_2 = [w/2 for w in complexity_rank_w2v]
+                syllables_rank_w2v_devided_by_2 = [w/2 for w in syllables_rank_w2v]
 
-                data = np.array([complexity_rank_w2v, syllables_rank_w2v, similarity_rank_w2v, context_similarit_rank_w2v, ngram_prob_rank_w2v])
+                #data = np.array([complexity_rank_w2v, syllables_rank_w2v, similarity_rank_w2v, context_similarit_rank_w2v, ngram_prob_rank_w2v])
+                '''weighted mean'''
+                data = np.array([complexity_rank_w2v_devided_by_2, syllables_rank_w2v_devided_by_2, similarity_rank_w2v, context_similarit_rank_w2v, ngram_prob_rank_w2v])
+
                 #print("check avg. before: ")
                 #print(data)
                 try :
@@ -378,7 +386,7 @@ def needToProcess(word, pos, bluemix_list, min_freq, complex_word_flag):
         print("no ' ?  " + str(condition5))
         print("no - ?  " + str(condition7))
 
-    if condition1 and condition3 and condition4 and condition6 and condition8:
+    if condition1 and condition3 and condition4 and condition6 and condition8 and condition2:
         return True
     else:
         return False
@@ -505,9 +513,10 @@ def isComplexWord(word, min_freq=50):
 
 
 
-def filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb):
+def filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, syllables_list_w2v, context_similarity_list_w2v, min_similarity, word_processing_frequency, word_processing_lower, word_processing_slb):
 
     freq_diff = 1.2
+    min_context_similarity = 0.3
 
     debugging = False
     if debugging:
@@ -524,31 +533,36 @@ def filterCandidateList(candidate_list_w2v, freq_list_w2v, similarity_list_w2v, 
     f_list = []
     s_list = []
     slb_list = []
+    c_s_list = []
 
     for x in range(0,length):
         c = candidate_list_w2v[x]
         f = freq_list_w2v[x]
         s = similarity_list_w2v[x]
         slb = syllables_list_w2v[x]
+        c_s = context_similarity_list_w2v[x]
 
         #keep candidate if meets all conditions
-        condition1 = f > word_processing_frequency*freq_diff and f > 25
+        condition1 = f >= word_processing_frequency
+        #condition1 = f > word_processing_frequency*freq_diff and f > 25
         condition2 = s > min_similarity
         condition3 = slb <= word_processing_slb
         condition4 = function.samePos(word_processing_lower,c)
+        condition5 = c_s >= min_context_similarity
         if debugging:
             print("for this candidate " + str(c))
             print(str(condition1) + " " + str(condition2) + " " + str(condition3) + " " + str(condition4))
             print("")
 
 
-        if condition1 and condition2 and condition3 and condition4:
+        if condition1 and condition2 and condition3 and condition4 and condition5:
             c_list.append(c)
             f_list.append(f)
             s_list.append(s)
             slb_list.append(slb)
 
-    return c_list, f_list, s_list, slb_list
+
+    return c_list, f_list, s_list, slb_list, c_s_list
 
 
 

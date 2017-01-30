@@ -154,8 +154,10 @@ def getBluemixConcept(s):
 	# print("BLUE MIX Concept")
 	if alchemyapi_concept_response['status'] == 'OK':
 		for concept in alchemyapi_concept_response['concepts']:
-			bluemix_concept_str_list.append(str(concept['text']))
-			bluemix_concept_obj_list.append(constructs.BluemixConceptKeywordObject(str(concept['text']), str(concept['relevance'])))
+
+			if float(concept['relevance']) >=0.75:
+				bluemix_concept_str_list.append(str(concept['text']))
+				bluemix_concept_obj_list.append(constructs.BluemixConceptKeywordObject(str(concept['text']), str(concept['relevance'])))
 		#print("Bluemix Concept: " + str(bluemix_concept_str_list))
 
 	else:
@@ -173,9 +175,9 @@ def getBluemixKeyword(s):
 	# print("BLUE MIX keyword")
 	if alchemyapi_keyword_response['status'] == 'OK':
 		for keyword in alchemyapi_keyword_response['keywords']:
-			bluemix_keyword_str_list.append(str(keyword['text']))
-			bluemix_keyword_obj_list.append(
-				constructs.BluemixConceptKeywordObject(str(keyword['text']), str(keyword['relevance'])))
+			if float(keyword['relevance']) >= 0.75:
+				bluemix_keyword_str_list.append(str(keyword['text']))
+				bluemix_keyword_obj_list.append(constructs.BluemixConceptKeywordObject(str(keyword['text']), str(keyword['relevance'])))
 			#print("Bluemix keyword: " + str(bluemix_keyword_str_list))
 	else:
 		print('Error in keyword extaction call: ', alchemyapi_keyword_response['statusInfo'])
